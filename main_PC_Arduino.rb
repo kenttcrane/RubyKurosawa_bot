@@ -7,7 +7,7 @@ require './hello.rb'
 require './bye.rb'
 require './message.rb'
 
-def reply(replies)
+def reply(replies) #新着リプライにリプライを行う。1回でも行えばtrueを、そうでなければfalseを返す
 	update = false #リプライに更新があったかどうか
 	prev_replies = Marshal.load(Marshal.dump(replies)) #深いコピーを行う
 	sleep 70
@@ -25,7 +25,7 @@ def reply(replies)
 	return update
 end
 
-def favorite(tweets,fav_words)
+def favorite(tweets,fav_words)#関連ワードを含んだ新着ツイートにいいねを押す
 	prev_tweets = Marshal.load(Marshal.dump(tweets)) #深いコピーを行う
 	sleep 70
 	tweets.replace($client.home_timeline)
@@ -47,7 +47,7 @@ def favorite(tweets,fav_words)
 	end
 end
 
-def isActive?()
+def isActive?() #起きている時間かどうか判定を行う
 	return (4<Time.now.hour && Time.now.hour<23)
 end
 
@@ -60,7 +60,7 @@ tweets = $client.home_timeline() #最新のものから20個とってくる
 fav_words = [/[うぅ][ゆゅ]/,/るびぃ/,/ルビィ/,/[Rr]uby/,/ラブライ/] #正規表現
 go_to_bed = false
 
-sp = Serial.new('COM3', 9600) #device, rate
+sp = Serial.new('COM3', 9600) #device,とrate。必要に応じて変える
 
 puts "セットアップ完了"
 
@@ -81,15 +81,14 @@ end
 while isActive?() do
 	go_to_bed = true
 	if reply(replies)
-		puts "電圧をかけます"
-		sp.write "reply."
+		sp.write "reply"
 	end
 	favorite(tweets,fav_words)
 end
 
 if go_to_bed then
 	$client.update(bye())
-	sp.write "sleep."
+	sp.write "sleep"
 end
 
 
